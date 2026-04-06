@@ -10,7 +10,7 @@ class user_response(BaseModel):
     name:str
     email:str
     role_id:int
-    class config:
+    class Config:
         from_attributes=True
 
 class login_request(BaseModel):
