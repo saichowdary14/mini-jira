@@ -4,6 +4,7 @@ from app.schemas.user import user_create,user_response,login_request
 from app.models.user  import User,Role,RolePermission,Permission
 from app.core.security import hash_password,verify_password,create_access_token,get_current_user,require_permission
 from ..database import get_db
+from app.services.activity_service import log_activity
 from sqlalchemy.orm import Session
 router=APIRouter(prefix="/users",tags=["Users"])
 
@@ -26,6 +27,8 @@ def user_login(login_request:OAuth2PasswordRequestForm = Depends(),db:Session=De
     if not verify_password(login_request.password,user.password):
         raise HTTPException(status_code=401,detail="Invalid password")
     access_token=create_access_token(data={"user_id":user.id})
+    log_activity(db,user_id=user.id,message=f"{user.name} is succesfully loged in")
+    db.commit()
     return {
         "access_token": access_token,
         "token_type": "bearer"

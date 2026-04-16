@@ -10,6 +10,7 @@ class User(Base):
     password=Column(String,nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id"))
     role=relationship("Role",back_populates="users")
+    project_members = relationship("ProjectMember", back_populates="user")
 
 class Role(Base):
     __tablename__="roles"

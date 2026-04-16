@@ -9,3 +9,4 @@ class Project(Base):
     description=Column(String)
     created_by=Column(Integer,ForeignKey("users.id"))
     owner=relationship("User")
+    members = relationship("ProjectMember", back_populates="project")

@@ -10,12 +10,12 @@ class Task(Base):
     title = Column(String, nullable=False)
     description = Column(String)
 
-    status = Column(String, default="TODO")  # TODO, IN_PROGRESS, DONE
-    priority = Column(String, default="MEDIUM")  # LOW, MEDIUM, HIGH
+    status = Column(String, default="todo")  # TODO, IN_PROGRESS, DONE
+    priority = Column(String, default="medium")  # LOW, MEDIUM, HIGH
 
     project_id = Column(Integer, ForeignKey("projects.id"))
     assigned_to = Column(Integer, ForeignKey("users.id"))
-    created_by = Column(Integer, ForeignKey("users.id"))
+    created_by = Column(Integer, ForeignKey("users.id"),nullable=True)
 
     project = relationship("Project")
     assignee = relationship("User", foreign_keys=[assigned_to])

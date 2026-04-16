@@ -1,10 +1,12 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class TaskCreate(BaseModel):
     title: str
     description: str
     project_id: int
-    assigned_to: int
+    assigned_to: Optional[int] = None
+    priority: Optional[str]=None
 
 class TaskResponse(BaseModel):
     id: int

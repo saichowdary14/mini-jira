@@ -1,4 +1,6 @@
+import os
 from passlib.context import CryptContext
+import os
 
 pwdcontext=CryptContext(schemes=["bcrypt"],deprecated="auto")
 def hash_password(password:str):
@@ -13,7 +15,7 @@ def verify_password(plain_password: str, hashed_password: str):
 from jose import JWTError,jwt
 from datetime import datetime , timedelta , timezone
 
-SECRET_KEY = "mysecretkey"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 def create_access_token(data:dict):
@@ -61,7 +63,5 @@ def require_permission(permission_name:str):
         permissions=get_permissions_by_role(user.role_id,db)
         if permission_name not in permissions:
             raise HTTPException(status_code=403,detail="You do not have permission")
-        else:
-            print("your allowed in")
         return user
     return checker
