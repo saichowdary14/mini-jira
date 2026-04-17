@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class ProjectCreate(BaseModel):
     name: str
@@ -11,3 +12,7 @@ class ProjectResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AddUserToProject(BaseModel):
+    user_id: int
+    role: Optional[str] = "member"

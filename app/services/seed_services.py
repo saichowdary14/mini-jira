@@ -30,11 +30,11 @@ def seed_role_permissions(db):
         "admin": "ALL",
         "team_lead": [
             "project:create", "project:view", "project:update",
-            "task:create", "task:view", "task:update", "task:assign",
-            "comment:create", "user:invite"
+            "task:create", "task:view", "task:update", "task:assign", "task:delete",
+            "comment:create", "user:invite","comment:delete",           
         ],
         "member": [
-            "task:view", "task:update", "comment:create"
+            "task:view", "task:update", "comment:create","project:view"
         ]
     }
 
@@ -52,7 +52,7 @@ def seed_role_permissions(db):
             permissions = db.query(Permission).filter(Permission.name.in_(perms)).all()
         for perm in permissions:
             exists = db.query(RolePermission).filter(RolePermission.role_id == role.id,RolePermission.Permission_id == perm.id).first()
-            if not exists:
+            if not exists:  
                 rp = RolePermission(role_id=role.id,Permission_id=perm.id)
                 db.add(rp)
                 created.append(f"{role.name} → {perm.name}")

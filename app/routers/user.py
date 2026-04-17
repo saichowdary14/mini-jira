@@ -5,6 +5,7 @@ from app.models.user  import User,Role,RolePermission,Permission
 from app.core.security import hash_password,verify_password,create_access_token,get_current_user,require_permission
 from ..database import get_db
 from app.services.activity_service import log_activity
+from app.services.user_services import promote_user_to_admin
 from sqlalchemy.orm import Session
 router=APIRouter(prefix="/users",tags=["Users"])
 
@@ -43,6 +44,12 @@ def current_user(user=Depends(get_current_user),db:Session=Depends(get_db)):
 def get_users(db:Session=Depends(get_db)):
     users=db.query(User).all()
     return users
+
+
+
+@router.put("/users/{user_id}/promote-admin")
+def promote_user(user_id: int,db: Session = Depends(get_db),current_user = Depends(require_permission("project:create"))):
+    return promote_user_to_admin(db, user_id, current_user)
 
 # @router.get("/{user_id}",response_model=user_response)
 # def get_user(user_id:int,db:Session=Depends(get_db)):
