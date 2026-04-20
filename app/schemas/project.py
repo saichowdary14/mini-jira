@@ -16,3 +16,7 @@ class ProjectResponse(BaseModel):
 class AddUserToProject(BaseModel):
     user_id: int
     role: Optional[str] = "member"
+
+class UpdateRoleRequest(BaseModel):
+    user_id: int
+    new_role: str

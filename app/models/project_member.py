@@ -10,7 +10,7 @@ import enum
 class ProjectMember(Base):
     __tablename__ = "project_members"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True,index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     project_id = Column(Integer, ForeignKey("projects.id"))
     role = Column(String, default="member", nullable=False)

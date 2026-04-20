@@ -2,27 +2,61 @@ from app.models.task import Task
 from fastapi import HTTPException
 from app.services.activity_service import log_activity
 from app.models.user import User
+from fastapi import HTTPException
+from app.models.project_member import ProjectMember
+from app.services.activity_service import log_activity
 
-def create_task(task_create,db,user):
-    user_id=user.id
-    user_name=user.name
-    assigned_to=task_create.assigned_to
-    new_task=Task(title=task_create.title,
-                  description=task_create.description,
-                  created_by=user.id,
-                  assigned_to=assigned_to if assigned_to else None,
-                  priority=task_create.priority if task_create.priority else "medium",
-                  project_id=task_create.project_id)
+
+def create_task(task_create, db, user, project_id):
+
+    user_id = user.id
+    user_name = user.name
+    assigned_to = task_create.assigned_to
+
+    # ✅ Check assigned user belongs to same project
+    if assigned_to:
+        member = db.query(ProjectMember).filter(
+            ProjectMember.project_id == project_id,
+            ProjectMember.user_id == assigned_to
+        ).first()
+
+        if not member:
+            raise HTTPException(
+                status_code=400,
+                detail="Assigned user is not part of this project"
+            )
+
+    # ✅ Create task
+    new_task = Task(
+        title=task_create.title,
+        description=task_create.description,
+        created_by=user_id,
+        assigned_to=assigned_to if assigned_to else None,
+        priority=task_create.priority if task_create.priority else "medium",
+        project_id=project_id
+    )
+
     db.add(new_task)
-    db.flush()
-    task_id=new_task.id
+    db.flush()  # get task id before commit
+
+    task_id = new_task.id
+
+    # ✅ Log message
     if assigned_to:
         message = f"{user_name} created task and assigned to user {assigned_to}"
     else:
         message = f"{user_name} created task"
-    log_activity(db,user_id=user_id,task_id=task_id,message=message)
+
+    log_activity(
+        db,
+        user_id=user_id,
+        task_id=task_id,
+        message=message
+    )
+
     db.commit()
     db.refresh(new_task)
+
     return new_task
 #_______________________________________________________________________________________________
 #_______________________________________________________________________________________________

@@ -1,6 +1,8 @@
 import os
 from passlib.context import CryptContext
-import os
+
+
+
 
 pwdcontext=CryptContext(schemes=["bcrypt"],deprecated="auto")
 def hash_password(password:str):
@@ -57,11 +59,39 @@ def get_current_user(access_token:str=Depends(oauth2_scheme),db:Session=Depends(
 
 
 from app.services.auth_services import get_permissions_by_role
+from app.models.project_member import ProjectMember
+# def require_permission(permission_name:str):
+#     def checker(user=Depends(get_current_user),db:Session=Depends(get_db)):
+#         permissions=get_permissions_by_role(user.id,db)
+#         if permission_name not in permissions:
+#             raise HTTPException(status_code=403,detail="You do not have permission")
+#         return user
+#     return checker
 
-def require_permission(permission_name:str):
-    def checker(user=Depends(get_current_user),db:Session=Depends(get_db)):
-        permissions=get_permissions_by_role(user.role_id,db)
+SYSTEM_ADMIN_ROLE_ID = 1
+
+
+def require_permission(permission_name: str):
+
+    def checker(
+        project_id: int, user=Depends(get_current_user),db: Session = Depends(get_db)):
+
+        # ✅ System admin → allow
+        if user.role_id == SYSTEM_ADMIN_ROLE_ID:
+            return user
+
+        # ✅ Get project role
+        member = db.query(ProjectMember).filter(ProjectMember.project_id == project_id,ProjectMember.user_id == user.id).first()
+
+        if not member:
+            raise HTTPException(403, "You are not part of this project")
+
+        # 🔥 CHANGE IS HERE
+        permissions = get_permissions_by_role(member.role, db)
+
         if permission_name not in permissions:
-            raise HTTPException(status_code=403,detail="You do not have permission")
+            raise HTTPException(403, "You do not have permission")
+
         return user
+
     return checker
